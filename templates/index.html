@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regidter</title>
+    <link rel="Stylesheet" href="{{url_for('static',filename='style.CSS')}}">
+</head>
+<body id="head1">
+    <h1>Registeration page</h1>
+    <form action="/register" method="POST">
+        <input type="text" name="user_name" id="name" placeholder="please enter your name" required>
+        <br><br>
+        <input type="text" name="gender" id="gender" placeholder="enter your gender" required>
+        <br><br>
+        <input type="text" name="age" id="age" placeholder="enter your age" required>
+        <br><br>
+        <button type="submit" id="btn">Register</button>
+    </form>
+    {% with messages= get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <h3>{{message}}</h3>
+                <a href="/assis.html">Rehab Website</a>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

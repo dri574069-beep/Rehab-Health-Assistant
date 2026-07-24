@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registeration</title>
+    <link rel="Stylesheet" href="{{url_for('static',filename='style.CSS')}}">
+</head>
+<body id="head">
+    <button type="button" id="pre">See your previous chat with gemini</button>
+    <p id="previous"></p>
+    <br>
+    <p id="his">See you water intake history</p>
+    <br>
+    <p id="water_his"></p>
+    <br>
+    <button id="st" type="button">See reminders</button>
+    <br>
+    <p id="manSt"></p>
+    <h3>Explore more pages!</h3>
+    <p>Chat with AI Health Assisstant 👩‍⚕️🩹🩺</p>
+    <a href="/pageTwo.html">AI Health Assistant</a>
+    <br>
+    <p>Take your medicine on time 💊</p>
+    <a href="medReminder.html">Medicine Reminder</a>
+    <br>
+    <p>Don`t forget to drink water 💧</p>
+    <a href="/waterintake.html">Water reminder</a>
+    <br>
+    <p>Get information about different medicines 💊</p>
+    <a href="medInfo.html">Medicine information</a>
+    <script>
+        let waterhis=document.getElementById("his");
+        let history_view=document.getElementById("water_his");
+        fetch("/fetchData")
+        .then(res=>{
+            return res.json()})
+        .then(data=>{
+            console.log(data);
+            let user_name=data.name;
+            let age=data.age;
+            let gender=data.gender;
+            let info=null;
+        function makeAcc(){
+            if(user_name){
+                let container=document.createElement("div");
+                container.id="user_info";
+                container.textContent=user_name;;
+                container.addEventListener(("click"),()=>{
+                    if(info){
+                        info.remove();
+                        info=null;
+                        return
+                    }
+                    info=document.createElement("div");
+                    info.id="info";
+                    info.textContent=`${user_name} \n${age} \n${gender}`;
+                    document.body.appendChild(info);
+                    })
+                document.body.appendChild(container);
+            }else{
+                console.log("Sorry you have to get register first")
+            }
+            }
+            setInterval(makeAcc,10000);
+        }) 
+        let preChat=document.getElementById("previous");
+        
+        console.log(`hello ${preChat}`);
+        let pre=document.getElementById("pre");
+
+        pre.addEventListener(("click"),()=>{
+            async function getResponse(){
+                let res=await fetch("/get_data");
+                let response=await res.json();
+                if(preChat.innerText!==""){
+                    preChat.innerText="";
+                    return
+                }
+                response.chat.forEach(message=>{
+                    preChat.innerText+=message + "\n\n";
+                });
+            }
+            getResponse();
+        })
+    waterhis.addEventListener(("click"),()=>{
+        async function getTime(){
+            let resu=await fetch("/fetchTime");
+            let result=await resu.json();
+            let time=result.water_his;
+            history_view.innerText=`water intake times : ${time}`
+        }
+        getTime()
+    });
+    let syn="";
+    let getStat=document.getElementById("st");
+    getStat.addEventListener(("click"),()=>{
+        async function getManStatus(){
+            let showStatus=document.getElementById("manSt")
+            let stat=await fetch("/manipulatedStatus");
+            let statu=await stat.json();
+            let status=statu.Status
+            let intake_times=statu.Time;
+            showStatus.innerText=`Status:${status} Time: ${intake_times}`;
+
+        }
+        getManStatus();
+    })
+    </script>
+</body>
+</html>

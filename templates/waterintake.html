@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Intake tracker</title>
+    <link rel="Stylesheet" href="/static/style.CSS">
+</head>
+<body id="sib4">
+    <h1>Water Intake Tracker</h1>
+    <input type="number" name="num" id="num" placeholder="please enter water intaker times">
+    <br>
+    <p>how much duration would you like in Milliseconds</p>
+    <br>
+    <input type="text" name="dura" id="durat" placeholder="10000">
+    <br><br>
+    <input type="email" id="em" placeholder="enter your email">
+    <br><br>
+    <button type="button" onclick="Reminder()">Schedule</button>
+    <br><br>
+    <select id="parent"></select>
+    <br>
+    <p>if you want in hours then </p>
+    <br><br>
+    <input type="text" id="n" placeholder="enter hours">
+    <br>
+    <p id="par"></p>
+    <br>
+    <button type="button" onclick="exchange()" id="new-btn">Convert Hours</button>
+    <script>
+        async function send(){
+            let NumRem=document.getElementById("num").value;
+            await fetch("/sendTime",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    "time":`${NumRem}`
+                })
+            })
+        }
+        let select=document.getElementById("marker");
+        let loading=false;
+        function Reminder(){
+            if(loading){
+                return
+            }
+            loading=true;
+            try{
+                let email=document.getElementById("em").value;
+                let times=document.getElementById("num").value;
+                let dur=document.getElementById("durat").value;
+                let duration=Number(dur); 
+            for(let time=1;time<=times;time++){
+                setTimeout(()=>{
+                    alert(`Hey Its time to drink water the ${time} time`);
+                    let options=[
+                    {"status":"completed","text":`completed water reminder the ${time} time`},
+                    {"status":"missed","text":`missed the ${time} water reminder`}
+                    ]
+                    options.forEach(option=>{
+                    let radio=document.createElement("input");
+                    radio.type="radio";
+                    radio.name=`status${time}`;
+                    radio.value=option.status;
+                    radio.addEventListener(("click"),()=>{
+                        async function changeStatus(){
+                            let stae=await fetch("/changeState",{
+                                method:"POST",
+                                headers:{
+                                    "Content-Type":"application/json"
+                                },
+                                body:JSON.stringify({
+                                    status:option.status
+                                })
+                            });
+                            let state= await stae.json()
+                        }
+                        changeStatus();
+                    })
+                    let label=document.createElement("label");
+                    console.log(`water reminder label : ${label}`);
+                    label.textContent=option.text;
+                    document.body.appendChild(document.createElement("br"));
+                    document.body.appendChild(radio);
+                    document.body.appendChild(label);
+                    document.body.appendChild(document.createElement("br"));
+                });
+                    fetch("/send_mail",{
+                        method:"POST",
+                        headers:{
+                            "Content-Type":"application/json"
+                        },
+                        body:JSON.stringify({
+                                email:email,
+                                times:times, 
+                        })
+                    })
+                },duration*time);
+            }
+            }catch(err){
+                console.log(err)
+            }finally{
+                loading=false;
+            }
+            console.log("saving water intake history");
+            send();  
+        }
+        function exchange(){
+            let tm=document.getElementById("n").value;
+            let tim=Number(tm)
+            let finalTim=tim*60*60*1000
+            let para=document.getElementById("par");
+            para.innerText=finalTim;
+        }
+    </script>
+</body>
+</html>

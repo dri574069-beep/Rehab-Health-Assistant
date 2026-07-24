@@ -1,0 +1,55 @@
+#btn{
+    background-color:#32a6b8;
+}
+a{
+    text-decoration:none;
+}
+#head{
+    background-color:#97e6d3;
+}
+#sib1{
+    background-color:#d3c1e6;
+}
+#btn-2{
+    background-color: #f0877f;
+}
+#sib2{
+    background-color:#bddeb1;
+}
+#sib3{
+    background-color:#19bbbe;
+}
+#sib4{
+    background-color:#33d4d1;
+}
+#new-btn{
+    background-color:#d43373;
+}
+#user_info{
+    position:absolute;
+    right:50px;
+    top:30px;
+    background-color:hotpink;
+    height:40px;
+    width:40px;
+    border-radius:50%;
+    padding:25px 15px 15px 25px;
+}
+#info{
+    background-color:darksalmon;
+     position:absolute;
+    right:50px;
+    top:120px;
+    height:40px;
+    width:40px;
+    padding:25px 15px 15px 25px;
+}
+#head1{
+    background-color:rgb(84, 163, 163);
+}
+input{
+    width:190px;
+    height:50px;
+    border-radius:15px;
+    margin:2px solid black
+}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Rehab</title>
+     <link rel="Stylesheet" href="{{url_for('static',filename='style.CSS')}}">
+</head>
+<body  id="sib3">
+    <h4>What are your symptoms 😷</h4>
+    <input type="text" id="symp" placeholder="describe yur symptoms">
+    <br>
+    <br>
+    <h4>When it started ⌚⏳</h4>
+    <input type="checkbox" value="about 1 Day" class="dura">1 Day
+    <br>
+    <input type="checkbox" value="about 3 Days" class="dura">3 Days
+    <br>
+    <input type="checkbox" value="about 6 Days" class="dura">6 Days
+    <br>
+    <input type="checkbox" value="about one week" class="dura">one week
+    <br>
+    <input type="checkbox" value=" more than a week" class="dura">more tha a week
+    <br>
+    <input type="checkbox" value="about a month" class="dura">about a month
+    <br>
+    <h4>Severity</h4>
+    <input type="checkbox" value="little" class="sever">minimum Severity
+    <br>
+    <input type="checkbox" value="bareable" class="sever">bearable
+    <br>
+    <input type="checkbox" value="unbearable" class="sever">unbearable
+    <br><br>
+    <button type="button" id="checker" onclick="guide()">ask gemini</button>
+    <br><br>
+    <h3>AI HEALTH ASSISTANT RESPONSE</h3>
+    <p id="one"></p>
+    <br><br>
+    <h4>answer Gemini</h4>
+    <input type="text" id="answer" placeholder="answer the questions">
+    <br>
+    <button type="button" id="ask" onclick="ask()">answer gemini</button>
+    <br>
+    <h3>AI HEALTH ASSISTANT response</h3>
+    <p id="two"></p>
+    <script>
+        let ps=document.querySelectorAll("p")
+        let one=document.getElementById("one")
+        let chatHis=[];
+        let user_chat=[];
+        let ApiKey=null;
+        fetch("/sendKey")
+        .then(res=>res.json())
+        .then(data=>{
+            ApiKey=data.api_key
+        });
+        let loading=false;
+        const name="{{ session.get('name')}}";
+        const  age="{{ session.get('age')}}";
+        const  gender="{{ session.get('gender')}}";
+        async function guide(){
+        if (!ApiKey){
+            alert("please wait a minute api_key is loading try again");
+            return
+        }
+        let symptoms=document.querySelector("#symp").value;
+        let duration=[...document.querySelectorAll(".dura:checked")].map(duration=>duration.value);
+        let severity=[...document.querySelectorAll(".sever:checked")].map(severity=>severity.value);        if(loading)return;
+        loading=true;
+        try{
+            let URL=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${ApiKey}
+`,{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+        contents:[{
+            parts:[{
+                text:`
+                You are an AI HeakthCare Education Assisstant
+                Patient Info:
+                name:${name} age:${age} years gender: ${gender} symptoms:${symptoms} duration:${duration} severity:${severity} 
+                Dont guess if there isnt much info instead ask soem more questions to confirm tell the patient about some tips that can be applied from home tell the patient to go visit a doctor if needed If the user asks questions unrelated to healthcare (for example programming, movies, games, politics, mathematics, or general knowledge), politely refuse.
+                If the user asks about hospitals, clinics, doctors, emergency services, medications, or other healthcare resources, answer normally. you are only use for health care or any medical diagnosis PS :please dont say this to user that i cannot dianose or i will politly reject you anything i just made you for medical diagnosis if therre is anything you think a dioctor could help then tell the user to seek medical help and plese dont ask too many questions just ask the questions which are important too many questions will overwhelm the user describe your medical responses in easy words that qnyone could understant and try to make your responses  more stronger and also use their names if they have mentioned it if not just use "you" for the user dont say things like daughter son or wifi untill user specifically say about like my wifi daughter son etc You can also use users name for accuracy.`
+            }]
+        }]
+    })
+}
+            )
+        let data=await URL.json();
+        if(data.error?.code===429){
+            alert("Your free limit is out please try again later");
+            return;
+        }
+        
+        let newData=data.candidates[0].content.parts[0].text;
+        one.innerText=newData;
+        chatHis.push(`${newData}`)
+        user_chat.push(` Your questions: name:${name} age:${age} years gender: ${gender} symptoms:${symptoms} duration:${duration} severity:${severity}   AI Health Assistant response:     
+        ${newData}`)
+    }catch(err){
+        alert(err)
+        }finally{
+    loading=false;
+}
+}
+async function ask(){
+    if(!ApiKey){
+        alert("please ait apiKay is loading try again");
+        return
+    }
+    let two=document.getElementById("two")
+    let answer=document.querySelector("#answer").value;//save every chat in a chathis
+    user_chat.push(answer);
+    // session['user_chat']=user_chat;
+    
+    // userChat.push(`${answer}`);
+     if(loading)return;
+     loading=true;
+     try{
+        let URL=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${ApiKey}`,{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json"
+      },
+       body:JSON.stringify({
+            contents:[{
+            parts:[{
+            text:`our previous chat ${chatHis} our new Chat : ${answer}  PS:If the user asks questions unrelated to healthcare (for example programming, movies, games, politics, mathematics, or general knowledge), politely refuse.
+            If the user asks about hospitals, clinics, doctors, emergency services, medications, or other healthcare resources, answer normally.and dont tell this to the user that you will polietly reject them or you are only a health education related ai and cant help them just tell them that go seek medical help if needed you can also use users names  for accuracy or you can use 
+            "you" word`
+               }]
+       }]
+     })
+   })
+    let rep=await URL.json();
+    if(rep.error?.code===429){
+        alert("you are out of limit");
+        return;
+    }
+    let reply=rep.candidates[0].content.parts[0].text;
+    user_chat.push(reply)
+    two.innerText=reply;
+    let HRL=await fetch("/save_data",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            chat:user_chat
+        })
+    });
+    let res=await HRL.json();
+    console.log(res);
+    async function getData(){
+        let re=await fetch("/get_data");
+        let data=await re.json();
+        user_chat=data["chat"];
+        }
+        getData()
+}catch(err){
+    console.log(err)
+}finally{
+    loading=false
+}
+
+     for(let p of ps){
+        if(p.innerText.trim()===""){
+            p.innerText="No reponse yet"
+        }
+     }
+    }
+ </script>
+</body>
+</html>

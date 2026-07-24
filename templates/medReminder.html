@@ -1,0 +1,78 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Medicine Reminder</title>
+        <link rel="Stylesheet" href="{{url_for('static',filename='style.CSS')}}">
+    </head>
+    <body id="sib2">
+        <h1>Medicine Reminder</h1>
+        <p>please fill in the info</p>
+        <br><br>
+        <input type="text" name="med" id="med" placehiolder="enter the medicine" required>
+        <br><br>
+        <input type="time" name="time" id="time" placeholder="Enter time" required>
+        <br><br>
+        <input type="date" name="date" id="date" placeholder="Enter date" required>
+        <br><br>
+        <input type="email" name="email" id="email" placeholder="enter your email" required>
+        <br><br>
+        <button type="button" onclick="scheduleMedicine()" id="btn-2">Schedule</button>
+        <ul id="medi">
+            <li></li>
+        </ul>
+        <script>
+            let ContentLength=0;
+            let isFirstLoad=true;
+            let buzzer=new Audio("static/Message_Alert_Chime-c0625508-9720-4a58-ad7e-e093ccc8dd39.mp3")
+            function loadMedicine(){
+                console.log("loadMedicine is running")
+                fetch("/sendMed")
+                .then(res=>{
+                return res.json()}
+            )
+                .then(data=>{
+                    let ul=document.querySelector("#medi li");
+                    if(ul && data.medicine.length>ContentLength){
+                        if(!isFirstLoad){
+                            buzzer.play().catch(err =>{
+                                alert("Please click the window for the buzzer to play");
+                            })
+                        }
+                        for(let medic of data.medicine){
+                            ul.innerText=medic;
+                        }
+                    }
+                    isFirstLoad=false;
+                    ContentLength=data.medicine.length;
+                })
+            } 
+            setInterval(loadMedicine,10000)  
+            async function scheduleMedicine(){
+                let medicine=document.getElementById("med").value;
+                let time=document.getElementById("time").value;
+                let date=document.getElementById("date").value;
+                let email=document.getElementById("email").value;
+                let scheduler=await fetch("/schedule",{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({
+                        medicine:medicine,
+                        time:time,
+                        date:date,
+                        email:email
+                    })
+                })
+                try{
+                let schedulers=scheduler.json();
+                alert("message scheduled successfully")
+                }catch(err){
+                    alert("An error accured")
+                }
+            }
+        </script>
+    </body>
+    </html>

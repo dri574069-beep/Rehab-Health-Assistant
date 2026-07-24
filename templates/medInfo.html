@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>medicine infot</title>
+    <link rel="Stylesheet" href="{{url_for('static',filename='style.CSS')}}">
+</head>
+<body id="sib1">
+    <h1>Welcome</h1>
+    <p>select a medicine to get information about it</p>
+    <br>
+    <select class="medicineNames"></select>
+    <h1>Medicine Info 🥼💊🌡</h1>
+    <br>
+    <h3>Indications And Usage</h3>
+    <br>
+    <p id="para1" class="para"></p>
+    <br><br>
+    <h3>Dosage 💉😷</h3>
+    <br>
+    <p id="para2" class="para"></p>
+    <br><br>
+    <h3>Warnings ⚠</h3>
+    <br>
+    <p id="para3" class="para"></p>
+    <br><br>
+    <h3>Do not use ❌</h3>
+    <br>
+    <p id="para4" class="para"></p>
+    <br><br>
+    <h3>Purpose</h3>
+    <br>
+    <p id="para5" class="para"></p>
+    <br><br>
+    <script src="{{url_for('static',filename='medicines.JS')}}"></script>
+    <script src="{{url_for('static',filename='medLogic.js')}}">
+    </script>
+</body>
+</html>
